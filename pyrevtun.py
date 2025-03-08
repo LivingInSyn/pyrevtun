@@ -73,8 +73,8 @@ def mode_listener(listenHost, listenPort, tunnelPort, sslfile, keyfile, passwd):
 	
 	#2 - Wait for target tunnel association
 	try:
-		listen_client_conn_tmp, listen_client_addr = listenSock.accept()
-		listen_client_conn = ssl.wrap_socket(listen_client_conn_tmp, certfile=sslfile, keyfile=keyfile, server_side=True)
+		listen_client_conn, listen_client_addr = listenSock.accept()
+		#listen_client_conn = ssl.wrap_socket(listen_client_conn_tmp, certfile=sslfile, keyfile=keyfile, server_side=True)
 		
 		print ('[*] Connection from ' + str(listen_client_addr[0]))	
 		print ('[*] Establishing association between client and listener')
