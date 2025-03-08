@@ -53,14 +53,22 @@ def recvall(the_socket, timeout= ''):
     return result
 
 def mode_listener(listenHost, listenPort, tunnelPort, sslfile, keyfile, passwd):
+	#create the ssl context
+	try:
+		context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+		context.load_cert_chain(sslfile, keyfile)
+	except Exception as e:
+		print ('[-] SSL Context creation error: ' + str(e))
+		sys.exit()
 	#1 - Wait for connection from the remote target host
 	try:
-		listenSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		listenSock.bind((listenHost, listenPort))
-		listenSock.listen(1)
+		underSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		underSocket.bind((listenHost, listenPort))
+		underSocket.listen(1)
+		listenSock = context.wrap_socket(underSocket, server_side=True)
 		print ('[*] Listening on TCP ' + str(listenPort))
 	except socket.error as msg:
-		print ('[-] Socket Error: ' + str(msg[0]) + ' Message ' + msg[1])
+		print ('[-] Socket Error: ' + str(msg))
 		sys.exit()
 	
 	#2 - Wait for target tunnel association
@@ -88,7 +96,7 @@ def mode_listener(listenHost, listenPort, tunnelPort, sslfile, keyfile, passwd):
 		tunnelSock.listen(1)
 		print ('[*] Tunnel socket is accessible at localhost:' + str(tunnelPort))
 	except socket.error as msg:
-		print ('[-] Socket Error: ' + str(msg[0]) + ' Message ' + msg[1])
+		print ('[-] Socket Error: ' + str(msg))
 		sys.exit()
 	
 	#4 - Initate connection to target and tunnel traffic
@@ -103,17 +111,23 @@ def mode_listener(listenHost, listenPort, tunnelPort, sslfile, keyfile, passwd):
 			data = recvall(listen_client_conn, RECV_TIMEOUT)
 			tunnel_client_conn.sendall(data)
 	except socket.error as msg:
-		print ('[*] Socket Closed: ' + str(msg[0]) + ' Message ' + msg[1])
+		print ('[*] Socket Closed: ' + str(msg))
 
 def mode_client(listenHost, listenPort, clientHost, clientPort, passwd):
 	#1 - Establish connection with listener host
 	try:
 		print ('[*] Connecting to listening host at ' + listenHost + ':' + str(listenPort))
+		# create the SSL context
+		context = ssl.create_default_context()
+		# do I need the public key here?
+		# context.load_verify_locations()
+		# create the socket
 		listenSockTmp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		listenSock = ssl.wrap_socket(listenSockTmp)
+		# wrap the socket
+		listenSock = context.wrap_socket(listenSockTmp, server_hostname=listenHost)
 		listenSock.connect((listenHost, listenPort))
 	except socket.error as msg:
-		print ('[-] Socket Error: ' + str(msg[0]) + ' Message ' + msg[1])
+		print ('[-] Socket Error: ' + str(msg))
 		sys.exit()		
 		
 	#2 - Send/receive client-listener association to move forward with tunnel establi
@@ -136,7 +150,7 @@ def mode_client(listenHost, listenPort, clientHost, clientPort, passwd):
 		tunnelSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		tunnelSock.connect((clientHost, clientPort))
 	except socket.error as msg:
-		print ('[-] Socket Error: ' + str(msg[0]) + ' Message ' + msg[1])
+		print ('[-] Socket Error: ' + str(msg))
 		sys.exit()	
 	
 	#4 - Tunnel traffic
@@ -148,7 +162,7 @@ def mode_client(listenHost, listenPort, clientHost, clientPort, passwd):
 			data = recvall(tunnelSock, RECV_TIMEOUT)
 			listenSock.sendall(data)
 	except socket.error as msg:
-		print ('[*] Socket Closed: ' + str(msg[0]) + ' Message ' + msg[1]) 
+		print ('[*] Socket Closed: ' + str(msg)) 
 	
 if __name__ == "__main__":
 	parser = OptionParser()
