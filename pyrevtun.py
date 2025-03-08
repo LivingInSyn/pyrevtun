@@ -78,7 +78,7 @@ def mode_listener(listenHost, listenPort, tunnelPort, sslfile, keyfile, passwd):
 		
 		print ('[*] Connection from ' + str(listen_client_addr[0]))	
 		print ('[*] Establishing association between client and listener')
-		if (listen_client_conn.recv(BUFFER_SIZE) != passwd):
+		if (listen_client_conn.recv(BUFFER_SIZE) != passwd.encode('utf-8')):
 			print ('[-] Failed to associate tunnel')
 			listen_client_conn.close()
 			sys.exit()
@@ -103,7 +103,7 @@ def mode_listener(listenHost, listenPort, tunnelPort, sslfile, keyfile, passwd):
 	try:
 		tunnel_client_conn, tunnel_client_addr = tunnelSock.accept()
 		print ('[*] Connecting to target host through tunnel')
-		listen_client_conn.send(passwd)
+		listen_client_conn.send(passwd.encode('utf-8'))
 		print ('[*] Connected')
 		while(1):
 			data = recvall(tunnel_client_conn, RECV_TIMEOUT)
@@ -136,7 +136,7 @@ def mode_client(listenHost, listenPort, clientHost, clientPort, passwd, sslfile)
 	#2 - Send/receive client-listener association to move forward with tunnel establi
 	try:
 		print ('[*] Establishing association between client and listener')
-		listenSock.send(passwd)
+		listenSock.send(passwd.encode('utf-8'))
 		if (listenSock.recv(BUFFER_SIZE) != passwd):
 			print ('[-] Failed to associate tunnel')
 			listenSock.close()
