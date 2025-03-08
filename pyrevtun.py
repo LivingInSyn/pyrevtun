@@ -113,14 +113,17 @@ def mode_listener(listenHost, listenPort, tunnelPort, sslfile, keyfile, passwd):
 	except socket.error as msg:
 		print ('[*] Socket Closed: ' + str(msg))
 
-def mode_client(listenHost, listenPort, clientHost, clientPort, passwd):
+def mode_client(listenHost, listenPort, clientHost, clientPort, passwd, sslfile):
 	#1 - Establish connection with listener host
 	try:
 		print ('[*] Connecting to listening host at ' + listenHost + ':' + str(listenPort))
 		# create the SSL context
 		context = ssl.create_default_context()
-		# do I need the public key here?
-		# context.load_verify_locations()
+		# note: is this unsafe? hell yeah, yolo
+		context.check_hostname = False
+		context.verify_mode = ssl.CERT_NONE
+		# do I need the public key here?; answer no, because who cares about validating certs? How can that go wrong?
+		# context.load_verify_locations(cafile=sslfile)
 		# create the socket
 		listenSockTmp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		# wrap the socket
@@ -191,8 +194,8 @@ if __name__ == "__main__":
 				listenhost, listenport = options.listener.split(':')
 				mode_listener(listenhost, int(listenport), options.tunnelport, options.sslfile, options.keyfile, options.passwd)
 	elif (options.mode == 'client'):
-		if (not options.listener) or (not options.client):
-			print('[-] Listener(-l) and client(-c) are mandatory switches')
+		if (not options.listener) or (not options.client) or (not options.sslfile):
+			print('[-] Listener(-l), client(-c), and SSL Cert file (-s) are mandatory switches')
 			sys.exit()
 		else:
 			if (':' not in options.listener):
@@ -204,6 +207,6 @@ if __name__ == "__main__":
 			else:
 				listenhost, listenport = options.listener.split(':')
 				clienthost, clientport = options.client.split(':')
-				mode_client(listenhost, int(listenport), clienthost, int(clientport), options.passwd)
+				mode_client(listenhost, int(listenport), clienthost, int(clientport), options.passwd, options.sslfile)
 	else:
 		sys.exit()
