@@ -59,7 +59,7 @@ def mode_listener(listenHost, listenPort, tunnelPort, sslfile, keyfile, passwd):
 		listenSock.bind((listenHost, listenPort))
 		listenSock.listen(1)
 		print ('[*] Listening on TCP ' + str(listenPort))
-	except socket.error, msg:
+	except socket.error as msg:
 		print ('[-] Socket Error: ' + str(msg[0]) + ' Message ' + msg[1])
 		sys.exit()
 	
@@ -76,7 +76,7 @@ def mode_listener(listenHost, listenPort, tunnelPort, sslfile, keyfile, passwd):
 			sys.exit()
 		else:
 			print ('[*] Tunnel is now associated on listener side')
-	except socket.error, msg:
+	except socket.error as msg:
 		print ('[-] Tunnel Association Error: ' + str(msg))
 		sys.exit()
 	
@@ -87,7 +87,7 @@ def mode_listener(listenHost, listenPort, tunnelPort, sslfile, keyfile, passwd):
 		tunnelSock.bind(('127.0.0.1', tunnelPort))
 		tunnelSock.listen(1)
 		print ('[*] Tunnel socket is accessible at localhost:' + str(tunnelPort))
-	except socket.error, msg:
+	except socket.error as msg:
 		print ('[-] Socket Error: ' + str(msg[0]) + ' Message ' + msg[1])
 		sys.exit()
 	
@@ -102,7 +102,7 @@ def mode_listener(listenHost, listenPort, tunnelPort, sslfile, keyfile, passwd):
 			listen_client_conn.sendall(data)
 			data = recvall(listen_client_conn, RECV_TIMEOUT)
 			tunnel_client_conn.sendall(data)
-	except socket.error, msg:
+	except socket.error as msg:
 		print ('[*] Socket Closed: ' + str(msg[0]) + ' Message ' + msg[1])
 
 def mode_client(listenHost, listenPort, clientHost, clientPort, passwd):
@@ -112,7 +112,7 @@ def mode_client(listenHost, listenPort, clientHost, clientPort, passwd):
 		listenSockTmp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		listenSock = ssl.wrap_socket(listenSockTmp)
 		listenSock.connect((listenHost, listenPort))
-	except socket.error, msg:
+	except socket.error as msg:
 		print ('[-] Socket Error: ' + str(msg[0]) + ' Message ' + msg[1])
 		sys.exit()		
 		
@@ -126,7 +126,7 @@ def mode_client(listenHost, listenPort, clientHost, clientPort, passwd):
 			sys.exit()
 		else:
 			print ('[*] Tunnel is now associated on client side')
-	except socket.error, msg:
+	except socket.error as msg:
 		print ('[-] Tunnel Association Error: ' + str(msg))
 		sys.exit()
 	
@@ -135,7 +135,7 @@ def mode_client(listenHost, listenPort, clientHost, clientPort, passwd):
 		print ('[*] Connecting to tunneled client service at ' + clientHost + ':' + str(clientPort))
 		tunnelSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		tunnelSock.connect((clientHost, clientPort))
-	except socket.error, msg:
+	except socket.error as msg:
 		print ('[-] Socket Error: ' + str(msg[0]) + ' Message ' + msg[1])
 		sys.exit()	
 	
@@ -147,7 +147,7 @@ def mode_client(listenHost, listenPort, clientHost, clientPort, passwd):
 			tunnelSock.sendall(data)
 			data = recvall(tunnelSock, RECV_TIMEOUT)
 			listenSock.sendall(data)
-	except socket.error, msg:
+	except socket.error as msg:
 		print ('[*] Socket Closed: ' + str(msg[0]) + ' Message ' + msg[1]) 
 	
 if __name__ == "__main__":
