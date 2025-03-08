@@ -1,4 +1,6 @@
 # pyrevtun
+## NOTES
+This is a fork to upgrade to Python 3. I did the bare minimum to make it work, I didn't clean it up so use caution. I also _definitely_ bypassed SSL best practices and disabled all cert validation on the client so...be careful
 
 Description
 ===========
@@ -12,7 +14,7 @@ Inspiration
 
 Requirements
 ============
-- Python 2.7.x
+- ~~Python 2.7.x~~ Python 3
 - X509 PEM public/private key (unprotected)
 - A password of your choice
 

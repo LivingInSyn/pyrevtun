@@ -113,7 +113,7 @@ def mode_listener(listenHost, listenPort, tunnelPort, sslfile, keyfile, passwd):
 	except socket.error as msg:
 		print ('[*] Socket Closed: ' + str(msg))
 
-def mode_client(listenHost, listenPort, clientHost, clientPort, passwd, sslfile):
+def mode_client(listenHost, listenPort, clientHost, clientPort, passwd):
 	#1 - Establish connection with listener host
 	try:
 		print ('[*] Connecting to listening host at ' + listenHost + ':' + str(listenPort))
@@ -194,8 +194,8 @@ if __name__ == "__main__":
 				listenhost, listenport = options.listener.split(':')
 				mode_listener(listenhost, int(listenport), options.tunnelport, options.sslfile, options.keyfile, options.passwd)
 	elif (options.mode == 'client'):
-		if (not options.listener) or (not options.client) or (not options.sslfile):
-			print('[-] Listener(-l), client(-c), and SSL Cert file (-s) are mandatory switches')
+		if (not options.listener) or (not options.client):
+			print('[-] Listener(-l) and client(-c) are mandatory switches')
 			sys.exit()
 		else:
 			if (':' not in options.listener):
@@ -207,6 +207,6 @@ if __name__ == "__main__":
 			else:
 				listenhost, listenport = options.listener.split(':')
 				clienthost, clientport = options.client.split(':')
-				mode_client(listenhost, int(listenport), clienthost, int(clientport), options.passwd, options.sslfile)
+				mode_client(listenhost, int(listenport), clienthost, int(clientport), options.passwd)
 	else:
 		sys.exit()
